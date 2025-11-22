@@ -1,0 +1,419 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guía Interactiva de Prompting — Curso</title>
+  <meta name="description" content="Guía interactiva y práctica de prompting: fundamentos, técnicas, ejemplos Mal vs Bien y visión de futuro.">
+  <meta property="og:title" content="Guía Interactiva de Prompting — Curso">
+  <meta property="og:description" content="Guía interactiva con módulos, ejemplos y visión de futuro del prompting para colaboración humano-IA.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="favicon.png">
+  <style>
+    :root{
+      --bg: #111213;
+      --elev: #16181a;
+      --card: #1b1d20;
+      --text: #e8eaed;
+      --muted:#aab0b6;
+      --brand:#0aa4ff;
+      --ok:#2ecc71;
+      --bad:#ff4757;
+      --border:#2a2d31;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius:18px;
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg:#f6f7f8; --elev:#ffffff; --card:#ffffff; --text:#1b1f24; --muted:#48505a;
+        --brand:#0071e3; --ok:#1a9f5a; --bad:#c9393e; --border:#e7e9ec; --shadow: 0 20px 40px rgba(0,0,0,.06);
+      }
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font:16px/1.55 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji;
+      color:var(--text); background:radial-gradient(1200px 800px at 20% -10%, rgba(10,164,255,.12), transparent 40%),
+                        radial-gradient(1000px 600px at 120% 10%, rgba(10,164,255,.08), transparent 40%),
+                        var(--bg);
+      -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    }
+    a{color:var(--brand); text-decoration:none}
+    a:focus{outline:2px solid var(--brand); outline-offset:4px; border-radius:8px}
+    header{
+      position:sticky; top:0; z-index:1000; backdrop-filter:saturate(1.2) blur(10px);
+      background:linear-gradient(to bottom, rgba(17,18,19,.85), rgba(17,18,19,.65));
+      border-bottom:1px solid var(--border);
+    }
+    .bar{
+      max-width:1200px; margin:0 auto; display:flex; gap:16px; align-items:center; padding:14px 20px;
+    }
+    .brand{
+      font-weight:700; letter-spacing:.2px; display:flex; align-items:center; gap:10px;
+    }
+    .brand .dot{
+      width:12px; height:12px; border-radius:50%; background:linear-gradient(135deg, var(--brand), #8bd3ff);
+      box-shadow:0 0 0 4px rgba(10,164,255,.15), 0 6px 16px rgba(10,164,255,.35);
+    }
+    .search{
+      flex:1; position:relative;
+    }
+    .search input{
+      width:100%; padding:12px 44px; border-radius:999px; border:1px solid var(--border); background:var(--elev); color:var(--text);
+      box-shadow:var(--shadow);
+    }
+    .search .icon{position:absolute; left:14px; top:50%; transform:translateY(-50%); opacity:.7}
+    .actions{display:flex; gap:10px}
+    .button{
+      border:1px solid var(--border); background:var(--elev); color:var(--text); padding:10px 14px; border-radius:12px; cursor:pointer;
+    }
+    .button.primary{background:linear-gradient(135deg, var(--brand), #53c6ff); color:white; border:none}
+    .wrap{display:grid; grid-template-columns: 300px 1fr; gap:28px; max-width:1200px; margin:28px auto; padding:0 20px}
+    nav{
+      position:sticky; top:72px; align-self:start; max-height: calc(100vh - 92px); overflow:auto; padding-right:6px;
+    }
+    nav .section{margin-bottom:18px}
+    nav .section h4{margin:0 0 8px 0; font-size:12px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted)}
+    nav a{display:block; padding:8px 12px; border-radius:10px; color:var(--text); border:1px solid transparent}
+    nav a:hover{background:var(--card); border-color:var(--border)}
+    main{display:flex; flex-direction:column; gap:24px}
+    .hero{
+      border:1px solid var(--border); border-radius:28px; padding:28px; background:linear-gradient(160deg, var(--card), rgba(10,164,255,.05));
+      box-shadow:var(--shadow);
+    }
+    h1{font-size:38px; line-height:1.15; margin:.2em 0 .1em 0}
+    .subtitle{color:var(--muted); margin:0 0 10px 0; font-size:18px}
+    section{
+      background:var(--card); border:1px solid var(--border); border-radius:24px; box-shadow:var(--shadow); padding:24px;
+    }
+    section h2{margin-top:0; font-size:28px}
+    section h3{font-size:20px; margin:26px 0 8px}
+    .kicker{font-size:14px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin-bottom:6px}
+    .pair{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0}
+    .bad,.good{
+      padding:16px; border:1px solid var(--border); border-radius:16px; background:linear-gradient(180deg, var(--elev), transparent);
+    }
+    .bad{border-color:rgba(255,71,87,.3)}
+    .good{border-color:rgba(46,204,113,.3)}
+    .badge{display:inline-flex; align-items:center; gap:8px; font-weight:700; padding:6px 10px; border-radius:999px; font-size:12px}
+    .badge.bad{background:rgba(255,71,87,.12); color:var(--bad)}
+    .badge.good{background:rgba(46,204,113,.12); color:var(--ok)}
+    .grid{display:grid; gap:16px}
+    .accordion{border:1px solid var(--border); border-radius:16px; overflow:hidden}
+    .accordion summary{list-style:none; cursor:pointer; padding:16px 18px; background:var(--elev); font-weight:600}
+    .accordion summary::-webkit-details-marker{display:none}
+    .accordion .content{padding:16px 18px; border-top:1px solid var(--border)}
+    .muted{color:var(--muted)}
+    .pill{display:inline-block; background:var(--elev); border:1px solid var(--border); padding:6px 10px; border-radius:999px; font-size:12px; color:var(--muted)}
+    .toc-mini{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 0}
+    .footer{color:var(--muted); text-align:center; padding:30px 0}
+    .hl{background:linear-gradient(90deg, rgba(10,164,255,.25), rgba(10,164,255,.12)); border-radius:6px; padding:0 4px}
+    .split{display:grid; grid-template-columns: 1fr 1fr; gap:18px}
+    @media (max-width: 980px){
+      .wrap{grid-template-columns:1fr}
+      .pair,.split{grid-template-columns:1fr}
+      nav{position:relative; top:0; max-height:none}
+    }
+  </style>
+</head>
+<body>
+<header aria-label="Barra superior">
+  <div class="bar">
+    <div class="brand" aria-label="Marca">
+      <span class="dot" aria-hidden="true"></span>
+      <span>Guía Interactiva de Prompting</span>
+    </div>
+    <div class="search" role="search">
+      <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2"/></svg>
+      <input id="q" type="search" placeholder="Buscar en la guía… (⌘/Ctrl + K)" aria-label="Buscar en la guía">
+    </div>
+    <div class="actions">
+      <button id="printBtn" class="button">Imprimir</button>
+      <button id="backTop" class="button primary">↑ Arriba</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav aria-label="Índice">
+    <div class="section">
+      <h4>Módulo 1</h4>
+      <a href="#m1">1. Qué aporta la IA generativa</a>
+      <a href="#m1-1">1.1 Flujo de trabajo</a>
+      <a href="#m1-2">1.2 Redacción asistida</a>
+      <a href="#m1-3">1.3 Comprensión y síntesis</a>
+      <a href="#m1-4">1.4 Conversión de formatos</a>
+      <a href="#m1-5">1.5 Control de calidad</a>
+      <a href="#m1-6">1.6 Impulso creativo</a>
+      <a href="#m1-7">1.7 Impacto medible</a>
+      <a href="#m1-8">1.8 Riesgos y límites</a>
+      <a href="#m1-9">1.9 Lo que no es la IA</a>
+    </div>
+    <div class="section">
+      <h4>Módulo 2</h4>
+      <a href="#m2">2. Marco Práctico de Prompting</a>
+      <a href="#m2-1">2.1 Conceptos y anatomía</a>
+      <a href="#m2-2">2.2 Estructura de prompts</a>
+      <a href="#m2-3">2.3 Técnicas básicas</a>
+      <a href="#m2-4">2.4 Enfoques avanzados</a>
+      <a href="#m2-5">2.5 Escritura y comunicación</a>
+      <a href="#m2-6">2.6 Análisis y decisiones</a>
+      <a href="#m2-7">2.7 Programación y datos</a>
+      <a href="#m2-8">2.8 Marketing y producto</a>
+      <a href="#m2-9">2.9 Depuración</a>
+      <a href="#m2-10">2.10 Ética y límites</a>
+    </div>
+    <div class="section">
+      <h4>Módulo 3</h4>
+      <a href="#m3">3. Futuro del Prompting</a>
+      <a href="#m3-1">3.1 De skill a estrategia</a>
+      <a href="#m3-2">3.2 IA como motor</a>
+      <a href="#m3-4">3.4 Ecosistemas híbridos</a>
+      <a href="#m3-5">3.5 Nuevos roles</a>
+      <a href="#cierre">Cierre</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="hero" id="top">
+      <p class="kicker">Guía viva</p>
+      <h1>Prompting: del texto a la estrategia</h1>
+      <p class="subtitle">Fundamentos, técnicas, ejemplos Mal vs Bien y visión de futuro para una colaboración humano-IA efectiva.</p>
+      <div class="toc-mini">
+        <span class="pill">Búsqueda en página</span>
+        <span class="pill">Ejemplos Mal vs Bien</span>
+        <span class="pill">Diseño responsivo</span>
+        <span class="pill">Visión de futuro</span>
+      </div>
+    </div>
+
+    <!-- MÓDULO 1 -->
+    <section id="m1" aria-labelledby="m1-heading">
+      <h2 id="m1-heading">Módulo 1. Qué aporta la IA generativa</h2>
+      <p>Este módulo describe cómo la IA cambia tu trabajo diario. Tú decides; la herramienta acelera, estructura y multiplica opciones.</p>
+      <details class="accordion" id="m1-1"><summary>1.1 Transformación del flujo de trabajo</summary><div class="content">
+        <p>La IA modifica cómo abordas tareas. Pasas de avanzar en secuencia a trabajar en paralelo gracias a borradores tempranos. El foco se desplaza de producir a decidir y ajustar. La exploración deja de ser un recorrido caótico y se convierte en un proceso guiado.</p>
+      </div></details>
+
+      <details class="accordion" id="m1-2"><summary>1.2 Redacción asistida con enfoque profesional</summary><div class="content">
+        <p>La IA reduce el esfuerzo de empezar desde cero y te permite concentrarte en claridad, coherencia y adecuación al público. La herramienta sugiere estructuras, limpia repeticiones y te ayuda a modular el tono sin perder tu voz.</p>
+      </div></details>
+
+      <details class="accordion" id="m1-3"><summary>1.3 Comprensión y síntesis de información</summary><div class="content">
+        <p>Funciona como filtro inicial frente a documentos extensos o múltiples fuentes. Señala ideas centrales, agrupa conceptos y resalta patrones. Tú sigues decidiendo qué se acepta, qué se cuestiona y qué requiere verificación adicional.</p>
+      </div></details>
+
+      <details class="accordion" id="m1-4"><summary>1.4 Conversión de formatos y adaptación</summary><div class="content">
+        <p>Transforma notas en informes, informes en presentaciones o documentos técnicos en versiones accesibles. Puedes adaptar tono, densidad y estructura sin reescribir desde cero cada pieza.</p>
+      </div></details>
+
+      <details class="accordion" id="m1-5"><summary>1.5 Control de calidad y verificación</summary><div class="content">
+        <p>Actúa como segunda mirada que detecta frases confusas, saltos lógicos y posibles inconsistencias. Puedes usarla para reforzar argumentos, pedir explicaciones alternativas y señalar puntos débiles antes de compartir contenido.</p>
+      </div></details>
+
+      <details class="accordion" id="m1-6"><summary>1.6 Impulso creativo y alternativas</summary><div class="content">
+        <p>Te ayuda a explorar variaciones de ideas, enfoques y metáforas. No sustituye tu criterio, pero desbloquea opciones que quizá no habías considerado y te permite comparar alternativas con menos esfuerzo.</p>
+      </div></details>
+
+      <details class="accordion" id="m1-7"><summary>1.7 Impacto medible</summary><div class="content">
+        <p>Aumenta la velocidad de iteración, reduce retrabajo y estabiliza la calidad de tus entregables. El tiempo que antes ibas perdiendo en tareas mecánicas se convierte en espacio para decisiones con impacto.</p>
+      </div></details>
+
+      <details class="accordion" id="m1-8"><summary>1.8 Señales de riesgo y límites</summary><div class="content">
+        <p>La fluidez no garantiza verdad ni pertinencia. Es importante vigilar la sobreconfianza, las tareas mal definidas y el riesgo de perder matices. La IA necesita tu mirada crítica y tus límites para no desbordarse.</p>
+      </div></details>
+
+      <details class="accordion" id="m1-9"><summary>1.9 Lo que no es la IA generativa</summary><div class="content">
+        <p>No es fuente de verdad ni sustituto de tu criterio. No tiene intención propia ni entiende contexto social como tú. Acelera procesos, pero el sentido de lo que haces sigue siendo responsabilidad tuya.</p>
+      </div></details>
+    </section>
+
+    <!-- MÓDULO 2 -->
+    <section id="m2" aria-labelledby="m2-heading">
+      <h2 id="m2-heading">Módulo 2. Marco Práctico de Prompting (MPP)</h2>
+      <p>Del pedir con intuición a diseñar prompts como herramientas de trabajo: claros, estructurados y revisables.</p>
+
+      <details class="accordion" id="m2-1"><summary>2.1 Conceptos esenciales y anatomía de un prompt</summary><div class="content">
+        <p>Un prompt no es solo una orden. Define cómo aborda la IA la tarea: qué debe hacer, con qué información y con qué forma. Sus piezas clave son la intención, la tarea, el contexto, las restricciones y el formato de salida.</p>
+        <div class="grid">
+          <div class="pair">
+            <div class="bad"><span class="badge bad">Mal</span><p>“Ayúdame con este texto.”</p></div>
+            <div class="good"><span class="badge good">Bien</span><p>“Quiero mejorar la claridad de este texto para que sea comprensible para lectores sin conocimientos técnicos.”</p></div>
+          </div>
+          <div class="pair">
+            <div class="bad"><span class="badge bad">Mal</span><p>“Analiza este documento.”</p></div>
+            <div class="good"><span class="badge good">Bien</span><p>“Necesito identificar las tres conclusiones más relevantes del documento para una reunión ejecutiva.”</p></div>
+          </div>
+        </div>
+      </div></details>
+
+      <details class="accordion" id="m2-2"><summary>2.2 Estructura práctica de prompts efectivos</summary><div class="content">
+        <p>Las cinco piezas se combinan para crear una guía clara para la IA. La intención marca el rumbo, la tarea define la acción, el contexto sitúa, las restricciones delimitan y el formato de salida hace que la respuesta sea utilizable sin retoques.</p>
+        <div class="pair">
+          <div class="bad"><span class="badge bad">Mal</span><p>“Mejora este párrafo.”</p></div>
+          <div class="good"><span class="badge good">Bien</span><p>“Quiero mejorar la claridad de este párrafo para un informe que leerá un equipo directivo. Reescribe el contenido sin cambiar los datos, eliminando repeticiones y adoptando un tono directo. Devuélvelo en un único párrafo de entre 80 y 100 palabras.”</p></div>
+        </div>
+      </div></details>
+
+      <details class="accordion" id="m2-3"><summary>2.3 Técnicas básicas para mejorar resultados</summary><div class="content">
+        <p>Reescritura progresiva, desambiguación, ejemplos internos, roles y peticiones iterativas te permiten ajustar sin complicar el prompt. Identificas qué necesitas, corriges puntos concretos y evitas pedir perfección en un solo intento.</p>
+        <div class="pair">
+          <div class="bad"><span class="badge bad">Mal</span><p>“Haz este texto perfecto.”</p></div>
+          <div class="good"><span class="badge good">Bien</span><p>“Genera una primera versión más clara de este texto. Después te pediré mejoras adicionales según la dirección que necesite.”</p></div>
+        </div>
+      </div></details>
+
+      <details class="accordion" id="m2-4"><summary>2.4 Enfoques avanzados</summary><div class="content">
+        <p>Descomposición de tareas, Chain of Thought breve, self-checking, prompting multietapa y enfoques híbridos te ayudan cuando las tareas son complejas. En lugar de un único prompt gigante, defines etapas y pides que el modelo muestre parte de su razonamiento.</p>
+        <div class="pair">
+          <div class="bad"><span class="badge bad">Mal</span><p>“Haz un plan estratégico.”</p></div>
+          <div class="good"><span class="badge good">Bien</span><p>“Vamos por etapas. Etapa 1: identifica los objetivos principales. Etapa 2: genera tres estrategias posibles para cada objetivo. Etapa 3: evalúa cada estrategia señalando fortalezas y riesgos. Etapa 4: propone una versión final combinada.”</p></div>
+        </div>
+      </div></details>
+
+      <details class="accordion" id="m2-5"><summary>2.5 Prompting específico para escritura y comunicación</summary><div class="content">
+        <p>La IA ayuda a afinar tono, estructura y claridad siempre que le indiques función del texto, público y estilo. Mejoras correos, informes, presentaciones y mensajes ejecutivos sin perder tu intención.</p>
+        <div class="pair">
+          <div class="bad"><span class="badge bad">Mal</span><p>“Hazlo más formal.”</p></div>
+          <div class="good"><span class="badge good">Bien</span><p>“Adapta este texto a un tono formal y profesional sin hacerlo distante. Mantén la claridad y evita expresiones coloquiales.”</p></div>
+        </div>
+      </div></details>
+
+      <details class="accordion" id="m2-6"><summary>2.6 Prompting para análisis y toma de decisiones</summary><div class="content">
+        <p>Definir criterios y pedir justificación convierte las respuestas en material útil para decidir. El modelo organiza información y tú validas el razonamiento.</p>
+        <div class="pair">
+          <div class="bad"><span class="badge bad">Mal</span><p>“Dime qué opción es mejor.”</p></div>
+          <div class="good"><span class="badge good">Bien</span><p>“Compara estas opciones usando tres criterios: claridad, viabilidad y riesgo. Explica cada evaluación en dos o tres frases y luego indica cuál opción se ajusta mejor al propósito del proyecto.”</p></div>
+        </div>
+      </div></details>
+
+      <details class="accordion" id="m2-7"><summary>2.7 Prompting para programación y datos</summary><div class="content">
+        <p>La IA te apoya en depuración, explicación, optimización y documentación cuando defines entorno, alcance y formato. En datos, aclaras si quieres interpretación, limpieza, transformación o todo a la vez.</p>
+        <div class="pair">
+          <div class="bad"><span class="badge bad">Mal</span><p>“Arregla este código.”</p></div>
+          <div class="good"><span class="badge good">Bien</span><p>“Estoy trabajando en Python 3.10. Este fragmento genera un error en tiempo de ejecución. Identifica la causa exacta sin modificar la estructura general. Después genera únicamente el bloque corregido.”</p></div>
+        </div>
+      </div></details>
+
+      <details class="accordion" id="m2-8"><summary>2.8 Prompting para marketing, producto y creación de contenido</summary><div class="content">
+        <p>El éxito depende de definir objetivo, público, ángulo y límites. La IA puede explorar alternativas, pulir mensajes y ayudarte a responder objeciones sin inventar promesas.</p>
+        <div class="pair">
+          <div class="bad"><span class="badge bad">Mal</span><p>“Dame ideas creativas para anunciar este producto.”</p></div>
+          <div class="good"><span class="badge good">Bien</span><p>“Quiero generar mensajes breves para promocionar una herramienta digital orientada a profesionales que buscan eficiencia. Propón cinco versiones distintas con un tono directo y sin promesas absolutas. Cada versión debe caber en una sola frase y estar numerada del 1 al 5.”</p></div>
+        </div>
+      </div></details>
+
+      <details class="accordion" id="m2-9"><summary>2.9 Depuración y mejora continua de prompts</summary><div class="content">
+        <p>Un prompt se ajusta, no se idolatra. Identificas el tipo de error (vaguedad, exceso, falta de contexto, límite mal definido o formato confuso) y corriges solo esa parte. La mejora es iterativa y consciente.</p>
+        <div class="pair">
+          <div class="bad"><span class="badge bad">Mal</span><p>“Resume este texto.”</p></div>
+          <div class="good"><span class="badge good">Bien</span><p>“Resume este texto en un párrafo de máximo 80 palabras, manteniendo solo los puntos esenciales.”</p></div>
+        </div>
+      </div></details>
+
+      <details class="accordion" id="m2-10"><summary>2.10 Consideraciones éticas, sesgos y límites</summary><div class="content">
+        <p>Tener velocidad no justifica perder cuidado. Pides que el modelo use solo la información disponible, evite estereotipos, indique incertidumbre y no entregue contenido que se confunda con un diagnóstico o una recomendación definitiva.</p>
+        <div class="pair">
+          <div class="bad"><span class="badge bad">Mal</span><p>“Dame más datos sobre esta afirmación.”</p></div>
+          <div class="good"><span class="badge good">Bien</span><p>“Explica esta afirmación usando exclusivamente la información proporcionada. Si algo no aparece en el texto, indícalo claramente.”</p></div>
+        </div>
+      </div></details>
+    </section>
+
+    <!-- MÓDULO 3 -->
+    <section id="m3" aria-labelledby="m3-heading">
+      <h2 id="m3-heading">Módulo 3. Futuro del Prompting y la colaboración humano-IA</h2>
+      <p>El prompting pasa de ser un truco técnico a convertirse en una forma de dirigir sistemas complejos de apoyo.</p>
+
+      <details class="accordion" id="m3-1"><summary>3.1 De skill técnica a competencia estratégica</summary><div class="content">
+        <p>La interacción con IA deja de centrarse en redactar instrucciones y se orienta a definir objetivos, criterios y límites. El prompting se convierte en una competencia estratégica que influye en cómo diseñas procesos, estructuras decisiones y coordinas recursos.</p>
+      </div></details>
+
+      <details class="accordion" id="m3-2"><summary>3.2 La IA como motor de automatización y procesamiento avanzado</summary><div class="content">
+        <p>La IA asume la parte intensiva: lectura masiva, síntesis, exploración de opciones y evaluación preliminar. Tú defines el propósito y validas las conclusiones. El trabajo manual disminuye; el trabajo de criterio aumenta.</p>
+      </div></details>
+
+      <details class="accordion" id="m3-4"><summary>3.4 Ecosistemas híbridos: humanos como arquitectos, IA como infraestructura</summary><div class="content">
+        <p>Los modelos se integran con RAG, agentes supervisados y sistemas que aprenden tu estilo. Dejas de pensar en prompts aislados y empiezas a diseñar flujos donde la IA está en segundo plano, sosteniendo análisis, redacción y decisiones a escala.</p>
+      </div></details>
+
+      <details class="accordion" id="m3-5"><summary>3.5 Nuevos roles y nuevas capacidades</summary><div class="content">
+        <p>Surgen roles que combinan dirección, diseño de contextos, supervisión ética y control de calidad. El valor pasa a quienes saben traducir objetivos en guías claras para la IA, revisar resultados con mirada crítica e integrar lo generado en decisiones reales.</p>
+      </div></details>
+    </section>
+
+    <section id="cierre">
+      <h2>Cierre</h2>
+      <p>El recorrido por esta guía muestra cómo el prompting ha pasado de ser una habilidad para “pedir cosas” a convertirse en una forma de pensar, diseñar y dirigir la colaboración humano-IA. Lo que empezó como aprender a formular instrucciones se transforma ahora en una competencia que te permite estructurar análisis, crear contenido sólido, guiar sistemas avanzados y convertir información dispersa en decisiones claras. A medida que la IA asume la carga operativa, el valor se desplaza hacia tu capacidad para marcar propósito, criterio y límites. El futuro no va de escribir prompts más complejos, sino de entender mejor qué quieres conseguir y cómo orquestar herramientas que amplifican tu alcance profesional.</p>
+    </section>
+
+    <div class="footer">© 2025 — Guía Interactiva de Prompting</div>
+  </main>
+</div>
+
+<script>
+  // Smooth scroll + Back to top
+  document.querySelectorAll('nav a, #backTop').forEach(a=>{
+    a.addEventListener('click', e=>{
+      if(a.getAttribute('href') && a.getAttribute('href').startsWith('#')){
+        e.preventDefault();
+        const id = a.getAttribute('href').slice(1) || 'top';
+        document.getElementById(id)?.scrollIntoView({behavior:'smooth', block:'start'});
+      } else if(a.id==='backTop'){
+        window.scrollTo({top:0, behavior:'smooth'});
+      }
+    });
+  });
+
+  // Print
+  document.getElementById('printBtn').addEventListener('click', ()=> window.print());
+
+  // Search + highlight
+  const q = document.getElementById('q');
+  const highlight = (term)=>{
+    document.querySelectorAll('.hl').forEach(n=>{
+      const p = n.parentNode; p.replaceChild(document.createTextNode(n.textContent), n);
+      p.normalize();
+    });
+    if(!term) return;
+    const rx = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    document.querySelectorAll('main section, .hero').forEach(sec=>{
+      sec.querySelectorAll('p, summary, h2, h3').forEach(node=>{
+        node.childNodes.forEach(child=>{
+          if(child.nodeType === 3){
+            const text = child.textContent;
+            const frag = document.createDocumentFragment();
+            let lastIndex = 0, m;
+            while((m = rx.exec(text))){
+              const before = text.slice(lastIndex, m.index);
+              if(before) frag.appendChild(document.createTextNode(before));
+              const span = document.createElement('span'); span.className='hl'; span.textContent = m[0];
+              frag.appendChild(span);
+              lastIndex = m.index + m[0].length;
+            }
+            if(lastIndex < text.length) frag.appendChild(document.createTextNode(text.slice(lastIndex)));
+            if(frag.childNodes.length){
+              node.replaceChild(frag, child);
+            }
+          }
+        });
+      });
+    });
+  };
+  q.addEventListener('input', e => highlight(e.target.value.trim()));
+  document.addEventListener('keydown', e=>{
+    if((e.metaKey || e.ctrlKey) && e.key.toLowerCase()==='k'){
+      e.preventDefault(); q.focus();
+    }
+  });
+
+  // Expand all within a module on heading click
+  document.querySelectorAll('section h2').forEach(h=>{
+    h.addEventListener('click', ()=>{
+      h.parentElement.querySelectorAll('details').forEach(d=> d.open = true);
+    });
+  });
+</script>
+</body>
+</html>
